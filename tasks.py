@@ -1,3 +1,4 @@
+import requests
 from robocorp import workitems
 from robocorp.tasks import task
 from RPA.HTTP import HTTP
@@ -6,7 +7,7 @@ from RPA.Tables import Tables
 
 from resources.variables import *
 
-# https://robocorp.com/docs/courses/work-data-management-python/15-loop-the-work-items
+# https://robocorp.com/docs/courses/work-data-management-python/17-first-api-request-experiment
 
 http = HTTP()
 json = JSON()
@@ -37,7 +38,29 @@ def consume_traffic_data():
     Inhuman Insurance Inc. Artificial Intelligence System automation.
     Consumes traffic data work items.
     """
-    print("consume")
+    process_traffic_data_work_items()
+
+def process_traffic_data_work_items():
+    for item in workitems.inputs:
+        traffic_data = item.payload['traffic_data']
+        valid = validate_traffic_data(traffic_data)
+        if valid:
+            post_traffic_data_to_sales_system(traffic_data)
+
+
+
+
+def post_traffic_data_to_sales_system(traffic_data):
+    reponse = requests.post(API_SALES_SYSTEM, json=traffic_data)
+    print(reponse.status_code)
+    
+def validate_traffic_data(traffic_data):
+    '''
+    Checks if the traffic data has country codes with the lenght of 3
+    '''
+    return len(traffic_data['country']) == 3
+
+
 
 def load_traffic_data_as_table():
     json_data = json.load_json_from_file(PATH_TRAFFIC_DATA)
